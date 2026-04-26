@@ -30,7 +30,9 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
 
     private static final String[] PUBLIC_URLS = {
-            "/api/auth/**",
+            "/api/auth/register",
+            "/api/auth/login",
+            "/api/auth/refresh",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/api-docs/**",
