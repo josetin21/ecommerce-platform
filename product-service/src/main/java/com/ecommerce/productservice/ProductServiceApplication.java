@@ -1,11 +1,12 @@
 package com.ecommerce.productservice;
 
+import com.ecommerce.productservice.config.JwtProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-//@EnableConfigurationProperties(JwtProperties.class)
+@EnableConfigurationProperties(JwtProperties.class)
 public class ProductServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(ProductServiceApplication.class, args);
