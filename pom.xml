@@ -13,6 +13,7 @@
 
     <modules>
         <module>user-service</module>
+        <module>product-service</module>
     </modules>
 
     <parent>
