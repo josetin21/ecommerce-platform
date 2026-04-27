@@ -25,6 +25,7 @@ public class ProductImage {
     @Column(name = "s3_url", nullable = false)
     private String s3Url;
 
+    @Builder.Default
     @Column(name = "is_primary", nullable = false)
     private boolean isPrimary = false;
 

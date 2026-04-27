@@ -1,6 +1,6 @@
 package com.ecommerce.productservice.exception;
 
-import com.ecommerce.userservice.dto.response.ApiErrorResponse;
+import com.ecommerce.productservice.dto.response.ApiErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
