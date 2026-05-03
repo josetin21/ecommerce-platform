@@ -29,6 +29,10 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+    persist-authorization: true
+    csrf:
+      enabled: false
+  default-produces-media-type: application/json
 
 app:
   jwt:
