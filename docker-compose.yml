@@ -23,6 +23,15 @@ services:
     networks:
       - ecommerce-network
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: ecommerce-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - ecommerce-network
+
 volumes:
   postgres-data:
 
