@@ -24,7 +24,7 @@ public class OrderItem {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    @Column(name = "product_name", nullable = false)
+    @Column(name = "product_id", nullable = false)
     private UUID productId;
 
     @Column(name = "product_name", nullable = false)
