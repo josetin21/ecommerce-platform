@@ -16,7 +16,7 @@ CREATE TABLE order_items(
     product_name VARCHAR(200) NOT NULL,
     unit_price DECIMAL(10,2) NOT NULL,
     quantity INT NOT NULL,
-    subtotal DECIMAL(10,2) NOT NULL,
+    subtotal DECIMAL(10,2) NOT NULL
 );
 
 CREATE INDEX idx_orders_user_id ON orders(user_id);

@@ -49,7 +49,7 @@ public class Order {
 
     @CreationTimestamp
     @Column(name = "placed_at", updatable = false)
-    private LocalDateTime placeAt;
+    private LocalDateTime placedAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
