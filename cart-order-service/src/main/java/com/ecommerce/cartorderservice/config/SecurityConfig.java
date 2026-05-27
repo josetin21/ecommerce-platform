@@ -2,6 +2,7 @@ package com.ecommerce.cartorderservice.config;
 
 import com.ecommerce.cartorderservice.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,13 +20,15 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/api-docs/**",
-                                "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                                "/swagger-ui.html", "/v3/api-docs/**",
+                                "/swagger-ui/index.html").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
