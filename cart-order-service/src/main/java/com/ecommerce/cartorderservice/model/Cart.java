@@ -28,6 +28,12 @@ public class Cart implements Serializable {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    public int getTotalItems(){
+        return items.stream()
+                .mapToInt(CartItem::getQuantity)
+                .sum();
+    }
+
     public void addItem(CartItem newItem){
         items.stream()
                 .filter(item -> item.getProductId().equals(newItem.getProductId()))
