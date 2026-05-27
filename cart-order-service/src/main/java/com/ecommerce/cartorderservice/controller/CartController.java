@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -27,46 +28,46 @@ public class CartController {
 
     @GetMapping
     @Operation(summary = "Get current user cart")
-    public ResponseEntity<CartResponse> getCart(@AuthenticationPrincipal UserDetails userDetails){
-        UUID userId = extractUserId(userDetails);
+    public ResponseEntity<CartResponse> getCart(Authentication authentication){
+        UUID userId = extractUserId(authentication);
         return ResponseEntity.ok(cartService.getCart(userId));
     }
 
     @PostMapping("/items")
     @Operation(summary = "Add items to cart")
-    public ResponseEntity<CartResponse> addToCart(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<CartResponse> addToCart(Authentication authentication,
                                                   @Valid @RequestBody AddToCartRequest request){
-        UUID userId = extractUserId(userDetails);
+        UUID userId = extractUserId(authentication);
         return ResponseEntity.ok(cartService.addToCart(userId, request));
     }
 
     @PutMapping("/items/{productId}")
     @Operation(summary = "Update item quantity in cart")
-    public ResponseEntity<CartResponse> updateCartItem(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<CartResponse> updateCartItem(Authentication authentication,
                                                        @PathVariable UUID productId,
                                                        @Valid @RequestBody UpdateCartItemRequest request){
-        UUID userId = extractUserId(userDetails);
+        UUID userId = extractUserId(authentication);
         return ResponseEntity.ok(cartService.updateCartItem(userId, productId, request));
     }
 
     @DeleteMapping("/items/{productId}")
     @Operation(summary = "Remove items from cart")
-    public ResponseEntity<CartResponse> removeFromCart(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<CartResponse> removeFromCart(Authentication authentication,
                                                        @PathVariable UUID productId){
-        UUID userId = extractUserId(userDetails);
+        UUID userId = extractUserId(authentication);
         return ResponseEntity.ok(cartService.removeFromCart(userId, productId));
     }
 
     @DeleteMapping
     @Operation(summary = "Clear Cart")
-    public ResponseEntity<Void> clearCart(@AuthenticationPrincipal UserDetails userDetails){
-        UUID userId = extractUserId(userDetails);
+    public ResponseEntity<Void> clearCart(Authentication authentication){
+        UUID userId = extractUserId(authentication);
         cartService.clearCart(userId);
         return ResponseEntity.noContent().build();
     }
 
 
-    private UUID extractUserId(UserDetails userDetails){
-        return UUID.fromString(userDetails.getUsername());
+    private UUID extractUserId(Authentication authentication){
+        return UUID.fromString((String) authentication.getPrincipal());
     }
 }

@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -28,32 +29,32 @@ public class OrderController {
 
     @PostMapping
     @Operation(summary = "Place order from cart")
-    public ResponseEntity<OrderResponse> placeOrder(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<OrderResponse> placeOrder(Authentication authentication,
                                                     @Valid @RequestBody PlaceOrderRequest request){
-        UUID userId = extractUserId(userDetails);
-        String userEmail = userDetails.getUsername();
+        UUID userId = extractUserId(authentication);
+        String userEmail = (String) authentication.getPrincipal();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(orderService.placeOder(userId, userEmail, request));
     }
 
     @GetMapping
     @Operation(summary = "Get order history")
-    public ResponseEntity<PageResponse<OrderResponse>> getOrderHistory(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<PageResponse<OrderResponse>> getOrderHistory(Authentication authentication,
                                                                        @RequestParam(defaultValue = "0") int page,
                                                                        @RequestParam(defaultValue = "10") int size){
-        UUID userId = extractUserId(userDetails);
+        UUID userId = extractUserId(authentication);
         return ResponseEntity.ok(orderService.getOrderHistory(userId, page, size));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get Order by id")
-    public ResponseEntity<OrderResponse> getOderById(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<OrderResponse> getOderById(Authentication authentication,
                                                      @PathVariable UUID id){
-        UUID userId = extractUserId(userDetails);
+        UUID userId = extractUserId(authentication);
         return ResponseEntity.ok(orderService.getOrderById(userId, id));
     }
 
-    private UUID extractUserId(UserDetails userDetails){
-        return UUID.fromString(userDetails.getUsername());
+    private UUID extractUserId(Authentication authentication){
+        return UUID.fromString((String) authentication.getPrincipal());
     }
 }
