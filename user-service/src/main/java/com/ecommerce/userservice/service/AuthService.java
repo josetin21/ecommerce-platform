@@ -44,7 +44,9 @@ public class AuthService {
         log.info("New user registered: {}", savedUser.getEmail());
 
         String accessToken = jwtService.generateAccessToken(
-                savedUser.getEmail(), savedUser.getRole().name());
+                savedUser.getEmail(),
+                savedUser.getRole().name(),
+                savedUser.getId().toString());
 
         String refreshToken = jwtService.generateRefreshToken(
                 savedUser.getEmail());
@@ -69,7 +71,9 @@ public class AuthService {
         log.info("User logged in: {}", user.getEmail());
 
         String accessToken = jwtService.generateAccessToken(
-                user.getEmail(), user.getRole().name());
+                user.getEmail(),
+                user.getRole().name(),
+                user.getId().toString());
 
         String refreshToken = jwtService.generateRefreshToken(
                 user.getEmail());

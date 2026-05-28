@@ -11,8 +11,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -70,4 +68,5 @@ public class CartController {
     private UUID extractUserId(Authentication authentication){
         return UUID.fromString((String) authentication.getPrincipal());
     }
+
 }

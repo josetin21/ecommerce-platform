@@ -25,10 +25,11 @@ public class JwtService {
 
     private final JwtProperties jwtProperties;
 
-    public String generateAccessToken(String email, String role){
+    public String generateAccessToken(String email, String role, String userId ){
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
         claims.put("type", "access");
+        claims.put("userId", userId);
         return buildToken(claims, email, jwtProperties.getAccessTokenExpiry());
     }
 
@@ -44,6 +45,10 @@ public class JwtService {
 
     public String extractRole(String token){
         return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    public String extractUserId(String token){
+        return extractClaim(token, claims -> claims.get("userId", String.class));
     }
 
     public boolean isTokenValid(String token, String email){

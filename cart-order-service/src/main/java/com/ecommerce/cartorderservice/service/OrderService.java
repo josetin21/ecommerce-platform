@@ -36,7 +36,7 @@ public class OrderService {
     private final RabbitTemplate rabbitTemplate;
 
     @Transactional
-    public OrderResponse placeOder(UUID userId, String userEmail, PlaceOrderRequest request){
+    public OrderResponse placeOrder(UUID userId, String userEmail, PlaceOrderRequest request){
 
         Cart cart = cartService.getRawCart(userId);
 
