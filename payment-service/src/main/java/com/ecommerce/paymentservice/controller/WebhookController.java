@@ -4,15 +4,13 @@ import com.ecommerce.paymentservice.config.RazorpayProperties;
 import com.ecommerce.paymentservice.service.PaymentService;
 import com.razorpay.RazorpayException;
 import com.razorpay.Utils;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -24,6 +22,8 @@ public class WebhookController {
     private final PaymentService paymentService;
     private final RazorpayProperties razorpayProperties;
 
+    @PostMapping("/webhook")
+    @Operation(summary = "Handle Razorpay webhook events")
     public ResponseEntity<Void> handleWebhook(@RequestBody String payload,
                                               @RequestHeader("X-Razorpay-Signature") String signature){
 
