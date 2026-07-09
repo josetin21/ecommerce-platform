@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static com.ecommerce.paymentservice.config.RabbitMQConfig.*;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -41,11 +42,24 @@ public class PaymentService {
     @Transactional
     public PaymentOrderResponse createPaymentOrder(CreatePaymentOrderRequest request, UUID userId){
 
-        paymentRepository.findByOrderId(request.getOrderId()).ifPresent(existing ->{
-            if (existing.getStatus() == PaymentStatus.SUCCESS){
-                throw new DuplicatePaymentException("Payment already completed for this order");
-            }
-        });
+        paymentRepository.findByOrderIdAndStatus(request.getOrderId(), PaymentStatus.SUCCESS)
+                .ifPresent(existing ->{
+                    throw new DuplicatePaymentException("Payment already completed for this order");
+                });
+
+        Optional<Payment> pendingPayment = paymentRepository.findByOrderIdAndStatus(request.getOrderId(), PaymentStatus.CREATED);
+
+        if (pendingPayment.isPresent()){
+            Payment existing = pendingPayment.get();
+            return PaymentOrderResponse.builder()
+                    .paymentId(existing.getId())
+                    .razorpayOrderId(existing.getRazorpayOrderId())
+                    .razorpayKeyId(razorpayProperties.getKeyId())
+                    .amount(existing.getAmount())
+                    .currency(existing.getCurrency())
+                    .status(existing.getStatus().name())
+                    .build();
+        }
 
         int amountInPaise = request.getAmount().multiply(BigDecimal.valueOf(100)).intValue();
 
@@ -53,6 +67,7 @@ public class PaymentService {
         orderRequest.put("amount", amountInPaise);
         orderRequest.put("currency", "INR");
         orderRequest.put("receipt", request.getOrderId().toString());
+        orderRequest.put("payment_capture", 1);
 
         Order razorpayOrder;
         try{
