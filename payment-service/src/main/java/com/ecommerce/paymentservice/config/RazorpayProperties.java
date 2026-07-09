@@ -10,4 +10,5 @@ import org.springframework.stereotype.Component;
 public class RazorpayProperties {
     private String keyId;
     private String keySecret;
+    private String webhookSecret;
 }

@@ -128,4 +128,49 @@ public class PaymentService {
                         .amount(payment.getAmount())
                         .build());
     }
+
+    public void handleWebHookEvent (String payload) throws org.json.JSONException{
+        JSONObject json = new JSONObject(payload);
+        String event = json.getString("event");
+
+        JSONObject paymentEntity = json.getJSONObject("payload")
+                .getJSONObject("payment")
+                .getJSONObject("entity");
+
+        String razorpayOrderId = paymentEntity.getString("order_id");
+        String razorpayPaymentId = paymentEntity.getString("id");
+
+        Payment payment = paymentRepository.findByRazorpayOrderId(razorpayOrderId)
+                .orElseThrow(() -> new PaymentNotFoundException("Payment not  found for webhook event"));
+
+        if (payment.getStatus() == PaymentStatus.SUCCESS || payment.getStatus() == PaymentStatus.FAILED){
+            log.info("Webhook event for already processed payment {}, skipping", payment.getId());
+            return;
+        }
+
+        if ("payment.captured".equals(event)){
+            payment.setRazorpayPaymentId(razorpayPaymentId);
+            payment.setStatus(PaymentStatus.SUCCESS);
+            paymentRepository.save(payment);
+
+            rabbitTemplate.convertAndSend(PAYMENT_EXCHANGE, PAYMENT_SUCCESS_ROUTING_KEY,
+                    PaymentSuccessEvent.builder()
+                            .orderId(payment.getOrderId())
+                            .paymentId(payment.getId())
+                            .razorpayPaymentId(razorpayPaymentId)
+                            .amount(payment.getAmount())
+                            .build());
+        } else if ("payment.failed".equals(event)) {
+            payment.setStatus(PaymentStatus.FAILED);
+            paymentRepository.save(payment);
+
+            rabbitTemplate.convertAndSend(PAYMENT_EXCHANGE, PAYMENT_FAILED_ROUTING_KEY,
+                    PaymentFailedEvent.builder()
+                            .orderId(payment.getOrderId())
+                            .paymentId(payment.getId())
+                            .reason("Payment failed per Razorpay webhook")
+                            .build());
+
+        }
+    }
 }
