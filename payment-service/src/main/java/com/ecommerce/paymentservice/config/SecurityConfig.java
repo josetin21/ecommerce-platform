@@ -28,7 +28,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/api-docs/**",
                                 "/swagger-ui.html", "/v3/api-docs/**",
-                                "/swagger-ui/index.html").permitAll()
+                                "/swagger-ui/index.html",
+                                "api/payments/webhook").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
