@@ -16,6 +16,7 @@
         <module>product-service</module>
         <module>cart-order-service</module>
         <module>payment-service</module>
+        <module>notifiction-service</module>
     </modules>
 
     <parent>
