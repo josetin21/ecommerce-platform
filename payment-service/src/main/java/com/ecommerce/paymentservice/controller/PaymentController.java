@@ -33,7 +33,8 @@ public class PaymentController {
     public ResponseEntity<PaymentOrderResponse> createPaymentOrder(Authentication authentication,
                                                                    @Valid @RequestBody CreatePaymentOrderRequest request){
         UUID userId =  extractUserId(authentication);
-        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.createPaymentOrder(request, userId));
+        String userEmail = extractEmail(authentication);
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.createPaymentOrder(request, userId, userEmail));
     }
 
     @PostMapping("/verify")
