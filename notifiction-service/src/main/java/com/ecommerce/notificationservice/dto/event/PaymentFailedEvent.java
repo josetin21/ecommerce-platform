@@ -15,4 +15,5 @@ public class PaymentFailedEvent {
     private UUID orderId;
     private UUID paymentId;
     private String reason;
+    private String userEmail;
 }
