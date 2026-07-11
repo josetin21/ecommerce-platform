@@ -17,4 +17,5 @@ public class PaymentSuccessEvent {
     private UUID paymentId;
     private String razorpayPaymentId;
     private BigDecimal amount;
+    private String userEmail;
 }

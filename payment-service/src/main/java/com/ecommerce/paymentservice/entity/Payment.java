@@ -30,6 +30,9 @@ public class Payment {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
+    @Column(name = "user_email", nullable = false)
+    private String userEmail;
+
     @Column(name = "razorpay_order_id", nullable = false, length = 100)
     private String razorpayOrderId;
 

@@ -40,7 +40,7 @@ public class PaymentService {
     private final RabbitTemplate rabbitTemplate;
 
     @Transactional
-    public PaymentOrderResponse createPaymentOrder(CreatePaymentOrderRequest request, UUID userId){
+    public PaymentOrderResponse createPaymentOrder(CreatePaymentOrderRequest request, UUID userId, String userEmail){
 
         paymentRepository.findByOrderIdAndStatus(request.getOrderId(), PaymentStatus.SUCCESS)
                 .ifPresent(existing ->{
@@ -80,6 +80,7 @@ public class PaymentService {
         Payment payment = Payment.builder()
                 .orderId(request.getOrderId())
                 .userId(userId)
+                .userEmail(userEmail)
                 .razorpayOrderId(razorpayOrder.get("id"))
                 .amount(request.getAmount())
                 .currency("INR")
@@ -124,6 +125,7 @@ public class PaymentService {
                     PaymentFailedEvent.builder()
                             .orderId(payment.getOrderId())
                             .paymentId(payment.getId())
+                            .userEmail(payment.getUserEmail())
                             .reason("Signature verification failed")
                             .build());
 
@@ -139,6 +141,7 @@ public class PaymentService {
                 PaymentSuccessEvent.builder()
                         .orderId(payment.getOrderId())
                         .paymentId(payment.getId())
+                        .userEmail(payment.getUserEmail())
                         .razorpayPaymentId(payment.getRazorpayPaymentId())
                         .amount(payment.getAmount())
                         .build());
@@ -174,6 +177,7 @@ public class PaymentService {
                             .paymentId(payment.getId())
                             .razorpayPaymentId(razorpayPaymentId)
                             .amount(payment.getAmount())
+                            .userEmail(payment.getUserEmail())
                             .build());
         } else if ("payment.failed".equals(event)) {
             payment.setStatus(PaymentStatus.FAILED);
@@ -183,6 +187,7 @@ public class PaymentService {
                     PaymentFailedEvent.builder()
                             .orderId(payment.getOrderId())
                             .paymentId(payment.getId())
+                            .userEmail(payment.getUserEmail())
                             .reason("Payment failed per Razorpay webhook")
                             .build());
 
