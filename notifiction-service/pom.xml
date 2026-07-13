@@ -27,6 +27,12 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+        <!-- Jackson, for Jackson2JsonMessageConverter in RabbitMQConfig -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
         <!-- Validation (for @ConfigurationProperties, if needed) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

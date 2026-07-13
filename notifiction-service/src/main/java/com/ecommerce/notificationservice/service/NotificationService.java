@@ -18,7 +18,7 @@ public class NotificationService {
 
     private final JavaMailSender mailSender;
 
-    @Value("{spring.mail.username}")
+    @Value("${spring.mail.username}")
     private String fromAddress;
 
     public void sendOrderConfirmationEmail(OrderPlacedEvent event){
