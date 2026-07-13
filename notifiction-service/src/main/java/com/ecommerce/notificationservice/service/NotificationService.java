@@ -23,7 +23,7 @@ public class NotificationService {
 
     public void sendOrderConfirmationEmail(OrderPlacedEvent event){
         StringBuilder body = new StringBuilder();
-        body.append("Hi,\\n\\nYour order has been placed successfully.\\n\\n");
+        body.append("Hi,\n\nYour order has been placed successfully.\n\n");
         body.append("Order ID: ").append(event.getOrderId()).append("\n");
         body.append("Shipping Address: ").append(event.getShippingAddress()).append("\n\n");
         body.append("Items:\n");
