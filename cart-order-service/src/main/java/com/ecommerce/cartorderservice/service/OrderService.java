@@ -14,7 +14,6 @@ import com.ecommerce.cartorderservice.model.Cart;
 import com.ecommerce.cartorderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -97,13 +96,7 @@ public class OrderService {
     }
 
     private void publishOrderPlacedEvent(Order order){
-        OrderPlacedEvent event = OrderPlacedEvent.builder()
-                .orderId(order.getId())
-                .userId(order.getUserId())
-                .userEmail(order.getUserEmail())
-                .totalAmount(order.getTotalAmount())
-                .shippingAddress(order.getShippingAddress())
-                .build();
+        OrderPlacedEvent event = orderMapper.toOrderPlacedEvent(order);
 
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.ORDER_EXCHANGE,
