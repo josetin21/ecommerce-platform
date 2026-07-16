@@ -120,7 +120,7 @@ public class OrderService {
             orderRepository.save(order);
             log.info("Order cancelled directly (was PENDING, no payment to refund): {}", orderId);
         } else {
-          publishOrderPlacedEvent(order);
+          publishOrderCancelledEvent(order);
           log.info("Order cancellation initiated, refund pending: {}", orderId);
         }
 
