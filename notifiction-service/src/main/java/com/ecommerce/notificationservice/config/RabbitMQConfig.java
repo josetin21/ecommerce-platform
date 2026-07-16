@@ -1,8 +1,6 @@
-package com.ecommerce.cartorderservice.config;
+package com.ecommerce.notificationservice.config;
 
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,17 +13,16 @@ public class RabbitMQConfig {
     public static final String ORDER_PLACED_ROUTING_KEY = "order.placed";
 
     public static final String PAYMENT_EXCHANGE = "payment.exchange";
-    public static final String PAYMENT_SUCCESS_QUEUE = "cart.payment.success.queue";
-    public static final String PAYMENT_FAILED_QUEUE = "cart.payment.failed.queue";
+    public static final String PAYMENT_SUCCESS_QUEUE = "notification.payment.success.queue";
     public static final String PAYMENT_SUCCESS_ROUTING_KEY = "payment.success";
+    public static final String PAYMENT_FAILED_QUEUE = "notification.payment.failed.queue";
     public static final String PAYMENT_FAILED_ROUTING_KEY = "payment.failed";
 
-    public static final String REFUND_PROCESSED_QUEUE = "cart.refund.processed.queue";
-    public static final String REFUND_FAILED_QUEUE = "cart.refund.failed.queue";
+    public static final String REFUND_PROCESSED_QUEUE = "notification.refund.process";
     public static final String REFUND_PROCESSED_ROUTING_KEY = "refund.processed";
+    public static final String REFUND_FAILED_QUEUE = "notification.refund.failed.queue";
     public static final String REFUND_FAILED_ROUTING_KEY = "refund.failed";
 
-    public static final String ORDER_CANCELLED_ROUTING_KEY = "order.cancelled";
 
     @Bean
     public TopicExchange orderExchange(){
@@ -34,11 +31,11 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue orderPlacedQueue(){
-        return QueueBuilder.durable(ORDER_PLACED_QUEUE).build();
+        return new Queue(ORDER_PLACED_QUEUE);
     }
 
     @Bean
-    public Binding orderPlacedBinding(){
+    public Binding orderplacedBinding(){
         return BindingBuilder
                 .bind(orderPlacedQueue())
                 .to(orderExchange())
@@ -87,14 +84,6 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding refundProcessedBinding(){
-        return BindingBuilder
-                .bind(refundProcessedQueue())
-                .to(paymentExchange())
-                .with(REFUND_PROCESSED_ROUTING_KEY);
-    }
-
-    @Bean
     public Binding refundFailedBinding(){
         return BindingBuilder
                 .bind(refundFailedQueue())
@@ -103,14 +92,16 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Binding refundProcessedBinding(){
+        return BindingBuilder
+                .bind(refundProcessedQueue())
+                .to(paymentExchange())
+                .with(REFUND_PROCESSED_ROUTING_KEY);
+    }
+
+    @Bean
     public Jackson2JsonMessageConverter messageConverter(){
         return new Jackson2JsonMessageConverter();
     }
 
-    @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
-        RabbitTemplate template = new RabbitTemplate(connectionFactory);
-        template.setMessageConverter(messageConverter());
-        return template;
-    }
 }

@@ -1,4 +1,4 @@
-package com.ecommerce.paymentservice.dto.event;
+package com.ecommerce.cartorderservice.dto.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

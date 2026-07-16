@@ -1,4 +1,4 @@
-package com.ecommerce.paymentservice.dto.event;
+package com.ecommerce.cartorderservice.dto.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PaymentFailedEvent {
+public class RefundFailedEvent {
     private UUID orderId;
     private UUID paymentId;
     private String reason;

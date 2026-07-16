@@ -52,6 +52,14 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderById(userId, id));
     }
 
+    @PatchMapping("/{id}/cancel")
+    @Operation(summary = "Cancel an order (triggers refund if already paid)")
+    public ResponseEntity<OrderResponse> cancelOrder(Authentication authentication,
+                                                     @PathVariable UUID id){
+        UUID userId = extractUserId(authentication);
+        return ResponseEntity.ok(orderService.cancelOrder(userId, id));
+    }
+
     private UUID extractUserId(Authentication authentication){
         return UUID.fromString((String) authentication.getPrincipal());
     }

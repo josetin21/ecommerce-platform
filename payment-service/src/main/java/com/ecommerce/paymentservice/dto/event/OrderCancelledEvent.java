@@ -11,9 +11,8 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PaymentFailedEvent {
+public class OrderCancelledEvent {
     private UUID orderId;
-    private UUID paymentId;
-    private String reason;
+    private UUID userId;
     private String userEmail;
 }
