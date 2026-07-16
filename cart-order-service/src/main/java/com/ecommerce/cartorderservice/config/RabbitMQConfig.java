@@ -20,6 +20,13 @@ public class RabbitMQConfig {
     public static final String PAYMENT_SUCCESS_ROUTING_KEY = "payment.success";
     public static final String PAYMENT_FAILED_ROUTING_KEY = "payment.failed";
 
+    public static final String REFUND_PROCESSED_QUEUE = "cart.refund.processed.queue";
+    public static final String REFUND_FAILED_QUEUE = "cart.refund.failed.queue";
+    public static final String REFUND_PROCESSED_ROUTING_KEY = "refund.processed";
+    public static final String REFUND_FAILED_ROUTING_KEY = "refund.failed";
+
+    public static final String ORDER_CANCELLED_ROUTING_KEY = "order.cancelled";
+
     @Bean
     public TopicExchange orderExchange(){
         return new TopicExchange(ORDER_EXCHANGE);
@@ -67,6 +74,32 @@ public class RabbitMQConfig {
                 .bind(paymentFailedQueue())
                 .to(paymentExchange())
                 .with(PAYMENT_FAILED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Queue refundProcessedQueue(){
+        return QueueBuilder.durable(REFUND_PROCESSED_QUEUE).build();
+    }
+
+    @Bean
+    public Queue refundFailedQueue(){
+        return QueueBuilder.durable(REFUND_FAILED_QUEUE).build();
+    }
+
+    @Bean
+    public Binding refundProcessedBinding(){
+        return BindingBuilder
+                .bind(refundProcessedQueue())
+                .to(paymentExchange())
+                .with(REFUND_PROCESSED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding refundFailedBinding(){
+        return BindingBuilder
+                .bind(refundFailedQueue())
+                .to(paymentExchange())
+                .with(REFUND_FAILED_ROUTING_KEY);
     }
 
     @Bean

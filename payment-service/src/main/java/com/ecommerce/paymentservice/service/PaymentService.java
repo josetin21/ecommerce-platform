@@ -3,6 +3,8 @@ package com.ecommerce.paymentservice.service;
 import com.ecommerce.paymentservice.config.RazorpayProperties;
 import com.ecommerce.paymentservice.dto.event.PaymentFailedEvent;
 import com.ecommerce.paymentservice.dto.event.PaymentSuccessEvent;
+import com.ecommerce.paymentservice.dto.event.RefundFailedEvent;
+import com.ecommerce.paymentservice.dto.event.RefundProcessedEvent;
 import com.ecommerce.paymentservice.dto.request.CreatePaymentOrderRequest;
 import com.ecommerce.paymentservice.dto.request.VerifyPaymentRequest;
 import com.ecommerce.paymentservice.dto.response.PaymentOrderResponse;
@@ -12,10 +14,7 @@ import com.ecommerce.paymentservice.exception.DuplicatePaymentException;
 import com.ecommerce.paymentservice.exception.InvalidPaymentSignatureException;
 import com.ecommerce.paymentservice.exception.PaymentNotFoundException;
 import com.ecommerce.paymentservice.repository.PaymentRepository;
-import com.razorpay.Order;
-import com.razorpay.RazorpayClient;
-import com.razorpay.RazorpayException;
-import com.razorpay.Utils;
+import com.razorpay.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -97,6 +96,52 @@ public class PaymentService {
                 .currency(saved.getCurrency())
                 .status(saved.getStatus().name())
                 .build();
+    }
+
+    @Transactional
+    public void processRefund(UUID orderId){
+        Payment payment = paymentRepository.findByOrderIdAndStatus(orderId, PaymentStatus.SUCCESS)
+                .orElse(null);
+
+        if (payment == null){
+            log.warn("No successful payment found for orderId={}", orderId);
+            return;
+        }
+
+        try{
+            JSONObject refundRequest = new JSONObject();
+            refundRequest.put("amount", payment.getAmount().multiply(BigDecimal.valueOf(100)).intValue());
+
+            Refund refund = razorpayClient.payments.refund(payment.getRazorpayPaymentId(), refundRequest);
+
+            payment.setStatus(PaymentStatus.REFUNDED);
+            payment.setRazorpayRefundId(refund.get("id"));
+            paymentRepository.save(payment);
+
+            rabbitTemplate.convertAndSend(PAYMENT_EXCHANGE, REFUND_PROCESSED_ROUTING_KEY,
+                    RefundProcessedEvent.builder()
+                            .orderId(payment.getOrderId())
+                            .paymentId(payment.getId())
+                            .razorpayRefundId(refund.get("id"))
+                            .amount(payment.getAmount())
+                            .userEmail(payment.getUserEmail())
+                            .build());
+
+            log.info("Refund processed for orderId={}", orderId);
+        } catch (Exception e){
+            log.error("Refund failed for orderId={} : {}",orderId, e.getMessage());
+
+            payment.setStatus(PaymentStatus.REFUND_FAILED);
+            paymentRepository.save(payment);
+
+            rabbitTemplate.convertAndSend(PAYMENT_EXCHANGE, REFUND_FAILED_ROUTING_KEY,
+                    RefundFailedEvent.builder()
+                            .orderId(payment.getOrderId())
+                            .paymentId(payment.getId())
+                            .userEmail(payment.getUserEmail())
+                            .reason(e.getMessage())
+                            .build());
+        }
     }
 
     @Transactional
