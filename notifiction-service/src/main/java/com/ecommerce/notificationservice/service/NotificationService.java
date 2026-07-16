@@ -1,9 +1,6 @@
 package com.ecommerce.notificationservice.service;
 
-import com.ecommerce.notificationservice.dto.event.OrderItemResponse;
-import com.ecommerce.notificationservice.dto.event.OrderPlacedEvent;
-import com.ecommerce.notificationservice.dto.event.PaymentFailedEvent;
-import com.ecommerce.notificationservice.dto.event.PaymentSuccessEvent;
+import com.ecommerce.notificationservice.dto.event.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,6 +56,30 @@ public class NotificationService {
 
         sendEmail(event.getUserEmail(), "Payment Failed - " + event.getOrderId(), body);
         log.info("Payment failed email sent for paymentId={}", event.getPaymentId());
+    }
+
+    public void sendRefundEmail(RefundProcessedEvent event){
+        String body = "Hi,\n\nYour refund has been processed successfully.\n\n"
+                + "Order ID: " + event.getOrderId() + "\n"
+                + "Payment ID: " + event.getPaymentId() + "\n"
+                + "Refund Amount: " + event.getAmount() + "\n"
+                + "Refund ID: " + event.getRazorpayRefundId() + "\n\n"
+                + "The amount will be credited to your original payment method within 5-7 business days.";
+
+        sendEmail(event.getUserEmail(), "Refund Processed - " + event.getOrderId(), body);
+        log.info("Refund email send for orderId={}", event.getOrderId());
+    }
+
+    public void sendRefundFailedEmail(RefundFailedEvent event){
+        String body = "Hi,\n\nWe attempted to process your refund but it could not be completed.\n\n"
+                + "Order ID: " + event.getOrderId() + "\n"
+                + "Payment ID: " + event.getPaymentId() + "\n"
+                + "Amount: " + event.getAmount() + "\n\n"
+                + "Our team has been notified and will resolve this manually. "
+                + "Please contact support if you don't hear back within 2-3 business days.";
+
+        sendEmail(event.getUserEmail(), "Refund Issue - " + event.getOrderId(), body);
+        log.info("Refund failed email sent for orderId={}", event.getOrderId());
     }
 
     private void sendEmail(String to, String subject, String body){
