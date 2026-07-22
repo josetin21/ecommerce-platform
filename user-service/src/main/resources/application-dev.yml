@@ -35,3 +35,10 @@ app:
     secret: ${JWT_SECRET}
     access-token-expiry: 900000
     refresh-token-expiry: 604800000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    prefer-ip-address: true

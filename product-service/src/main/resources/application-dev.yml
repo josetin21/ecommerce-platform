@@ -42,3 +42,10 @@ app:
   aws:
     bucket-name: ${AWS_BUCKET_NAME}
     region: ${AWS_REGION}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    prefer-ip-address: true
