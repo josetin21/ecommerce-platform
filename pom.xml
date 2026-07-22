@@ -17,6 +17,8 @@
         <module>cart-order-service</module>
         <module>payment-service</module>
         <module>notifiction-service</module>
+        <module>discovery-service</module>
+        <module>discovery-service</module>
     </modules>
 
     <parent>
@@ -35,6 +37,7 @@
         <jjwt.version>0.12.3</jjwt.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <lombok.version>1.18.30</lombok.version>
+        <spring-cloud.version>2023.0.3</spring-cloud.version>
     </properties>
 
     <dependencyManagement>
@@ -60,6 +63,13 @@
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
