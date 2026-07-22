@@ -12,6 +12,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StockAdjustmentItem {
-    private UUID id;
+    private UUID productId;
     private Integer quantity;
 }

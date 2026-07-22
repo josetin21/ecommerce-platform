@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -17,4 +18,16 @@ public class ProductClientResponse {
     private BigDecimal price;
     private Integer stockQuantity;
     private boolean isActive;
+    private List<ProductImageClientResponse> images;
+
+    public String getPrimaryImageUrl(){
+        if (images == null || images.isEmpty()){
+            return null;
+        }
+        return images.stream()
+                .filter(ProductImageClientResponse::isPrimary)
+                .findFirst()
+                .orElse(images.get(0))
+                .getS3Url();
+    }
 }

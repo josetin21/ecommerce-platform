@@ -1,6 +1,11 @@
 package com.ecommerce.cartorderservice.service;
 
+import com.ecommerce.cartorderservice.client.ProductServiceClient;
 import com.ecommerce.cartorderservice.config.RabbitMQConfig;
+import com.ecommerce.cartorderservice.dto.client.StockAdjustmentItem;
+import com.ecommerce.cartorderservice.dto.client.StockAdjustmentRequest;
+import com.ecommerce.cartorderservice.dto.event.PaymentFailedEvent;
+import com.ecommerce.cartorderservice.dto.event.PaymentSuccessEvent;
 import com.ecommerce.cartorderservice.dto.event.RefundFailedEvent;
 import com.ecommerce.cartorderservice.dto.event.RefundProcessedEvent;
 import com.ecommerce.cartorderservice.dto.request.PlaceOrderRequest;
@@ -40,6 +45,9 @@ public class OrderService {
     private final CartService cartService;
     private final OrderMapper orderMapper;
     private final RabbitTemplate rabbitTemplate;
+    private final ProductServiceClient productServiceClient;
+
+    private static final Set<OrderStatus> CANCELLABLE_STATUSES = EnumSet.of(OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.PROCESSING);
 
     @Transactional
     public OrderResponse placeOrder(UUID userId, String userEmail, PlaceOrderRequest request){
@@ -59,6 +67,8 @@ public class OrderService {
                         .subtotal(cartItem.getSubtotal())
                         .build())
                 .toList();
+
+        productServiceClient.reserveStock(toStockAdjustmentRequest(orderItems));
 
         Order order = Order.builder()
                 .userId(userId)
@@ -102,9 +112,6 @@ public class OrderService {
         return orderMapper.toOrderResponse(order);
     }
 
-    private static final Set<OrderStatus> CANCELLABLE_STATUSES =
-            EnumSet.of(OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.PROCESSING);
-
     @Transactional
     public OrderResponse cancelOrder(UUID userId, UUID orderId){
         Order order = orderRepository.findByIdAndUserId(orderId, userId)
@@ -128,6 +135,35 @@ public class OrderService {
     }
 
     @Transactional
+    public void handlePaymentSuccess(PaymentSuccessEvent event){
+        Order order = orderRepository.findById(event.getOrderId()).orElse(null);
+
+        if (order == null){
+            log.warn("Order not found for orderId={}, skipping status update", event.getOrderId());
+            return;
+        }
+
+        order.setStatus(OrderStatus.CONFIRMED);
+        orderRepository.save(order);
+        log.info("Order status updated to CONFIRMED for orderId={}", event.getOrderId());
+    }
+
+    @Transactional
+    public void handlePaymentFailed(PaymentFailedEvent event){
+        Order order = orderRepository.findById(event.getOrderId()).orElse(null);
+
+        if (order == null){
+            log.warn("Order not found for orderId={}, skipping status update", event.getOrderId());
+            return;
+        }
+
+        order.setStatus(OrderStatus.PAYMENT_FAILED);
+        orderRepository.save(order);
+        productServiceClient.releaseStock(toStockAdjustmentRequest(order.getItems()));
+        log.info("Order status updated to PAYMENT_FAILED for orderId={}", event.getOrderId());
+    }
+
+    @Transactional
     public void handleRefundProcessed(RefundProcessedEvent event){
         Order order = orderRepository.findById(event.getOrderId()).orElse(null);
 
@@ -144,6 +180,17 @@ public class OrderService {
     public void handleRefundFailed(RefundFailedEvent event){
         log.warn("Refund failed for orderId={}, reason={}, Order status left unchanged for manual follow-up",
                 event.getOrderId(), event.getReason());
+    }
+
+    private StockAdjustmentRequest toStockAdjustmentRequest(List<OrderItem> items){
+        List<StockAdjustmentItem> adjustmentItems = items.stream()
+                .map(item -> StockAdjustmentItem.builder()
+                        .productId(item.getProductId())
+                        .quantity(item.getQuantity())
+                        .build())
+                .toList();
+
+        return StockAdjustmentRequest.builder().items(adjustmentItems).build();
     }
 
     private void publishOrderCancelledEvent(Order order){
