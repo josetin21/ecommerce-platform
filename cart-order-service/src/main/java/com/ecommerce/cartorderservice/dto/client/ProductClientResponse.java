@@ -1,5 +1,6 @@
 package com.ecommerce.cartorderservice.dto.client;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +18,7 @@ public class ProductClientResponse {
     private String name;
     private BigDecimal price;
     private Integer stockQuantity;
-    private boolean isActive;
+    private boolean active;
     private List<ProductImageClientResponse> images;
 
     public String getPrimaryImageUrl(){

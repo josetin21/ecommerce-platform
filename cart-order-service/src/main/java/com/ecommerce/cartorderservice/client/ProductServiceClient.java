@@ -31,7 +31,7 @@ public class ProductServiceClient {
 
     public ProductClientResponse getProduct(UUID productId){
         try{
-            return restTemplate.getForObject(PRODUCT_SERVICE_URL + "/api/products" + productId, ProductClientResponse.class);
+            return restTemplate.getForObject(PRODUCT_SERVICE_URL + "/api/products/" + productId, ProductClientResponse.class);
         } catch (HttpClientErrorException.NotFound e){
             throw new ResourceNotFoundException("Product not found: " + productId);
         } catch (RestClientException e){

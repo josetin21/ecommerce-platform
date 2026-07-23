@@ -36,14 +36,14 @@ public class ProductService {
 
     public PageResponse<ProductResponse> getAllProducts(int page, int size, String sortBy){
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
-        Page<Product> products = productRepository.findByIsActiveTrue(pageable);
+        Page<Product> products = productRepository.findByActiveTrue(pageable);
 
         return toPageResponse(products);
     }
 
     public PageResponse<ProductResponse> getProductsByCategory(UUID categoryId, int page, int size){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Product> products = productRepository.findByCategoryIdAndIsActiveTrue(categoryId, pageable);
+        Page<Product> products = productRepository.findByCategoryIdAndActiveTrue(categoryId, pageable);
 
         return toPageResponse(products);
     }
@@ -73,7 +73,7 @@ public class ProductService {
                 .price(request.getPrice())
                 .stockQuantity(request.getStockQuantity())
                 .category(category)
-                .isActive(true)
+                .active(true)
                 .build();
 
         Product saved = productRepository.save(product);
@@ -90,7 +90,7 @@ public class ProductService {
         if (request.getDescription() != null) product.setDescription(request.getDescription());
         if (request.getPrice() != null) product.setPrice(request.getPrice());
         if (request.getStockQuantity() != null) product.setStockQuantity(request.getStockQuantity());
-        if (request.getIsActive() != null) product.setActive(request.getIsActive());
+        if (request.getActive() != null) product.setActive(request.getActive());
         if (request.getCategoryId() != null){
             Category category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new CategoryNotFoundException(request.getCategoryId().toString()));

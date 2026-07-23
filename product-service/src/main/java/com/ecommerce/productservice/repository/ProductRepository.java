@@ -13,13 +13,13 @@ import java.util.UUID;
 
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 
-    Page<Product> findByIsActiveTrue(Pageable pageable);
+    Page<Product> findByActiveTrue(Pageable pageable);
 
-    Page<Product> findByCategoryIdAndIsActiveTrue(UUID categoryId, Pageable pageable);
+    Page<Product> findByCategoryIdAndActiveTrue(UUID categoryId, Pageable pageable);
 
     @Query("""
             SELECT p FROM Product p
-            WHERE p.isActive = true
+            WHERE p.active = true
             AND (LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%'))
             OR LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%')))
             """)
