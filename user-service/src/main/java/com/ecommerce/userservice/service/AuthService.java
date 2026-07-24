@@ -26,6 +26,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserMapper userMapper;
+    private final RefreshTokenService refreshTokenService;
 
     public AuthResponse register(RegisterRequest request){
         if (userRepository.existsByEmail(request.getEmail())){
@@ -48,8 +49,7 @@ public class AuthService {
                 savedUser.getRole().name(),
                 savedUser.getId().toString());
 
-        String refreshToken = jwtService.generateRefreshToken(
-                savedUser.getEmail());
+        String refreshToken = refreshTokenService.issue(savedUser);
 
         return AuthResponse.builder()
                 .accessToken(accessToken)
@@ -75,8 +75,7 @@ public class AuthService {
                 user.getRole().name(),
                 user.getId().toString());
 
-        String refreshToken = jwtService.generateRefreshToken(
-                user.getEmail());
+        String refreshToken = refreshTokenService.issue(user);
 
         return AuthResponse.builder()
                 .accessToken(accessToken)
@@ -84,6 +83,29 @@ public class AuthService {
                 .tokenType("Bearer")
                 .user(userMapper.toUserResponse(user))
                 .build();
+    }
+
+    public AuthResponse refresh(String rawRefreshToken){
+        RefreshTokenService.RotatedToken rotated = refreshTokenService.rotate(rawRefreshToken);
+        User user = rotated.user();
+
+        String accessToken = jwtService.generateAccessToken(
+                user.getEmail(),
+                user.getRole().name(),
+                user.getId().toString());
+
+        log.info("Access token refreshed for user: {}", user.getEmail());
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(rotated.rawToken())
+                .tokenType("Bearer")
+                .user(userMapper.toUserResponse(user))
+                .build();
+    }
+
+    public void logout(String rawRefreshToken){
+        refreshTokenService.revoke(rawRefreshToken);
     }
 
     public UserResponse getProfile(String email){

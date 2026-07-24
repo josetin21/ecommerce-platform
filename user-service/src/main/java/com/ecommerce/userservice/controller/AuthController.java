@@ -1,6 +1,7 @@
 package com.ecommerce.userservice.controller;
 
 import com.ecommerce.userservice.dto.request.LoginRequest;
+import com.ecommerce.userservice.dto.request.RefreshTokenRequest;
 import com.ecommerce.userservice.dto.request.RegisterRequest;
 import com.ecommerce.userservice.dto.response.AuthResponse;
 import com.ecommerce.userservice.dto.response.UserResponse;
@@ -34,6 +35,19 @@ public class AuthController {
     @Operation(summary = "Login with email and password")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request){
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Exchange a refresh token for a new access token")
+    public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest request){
+        return ResponseEntity.ok(authService.refresh(request.getRefreshToken()));
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Revoke a refresh token")
+    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest request){
+        authService.logout(request.getRefreshToken());
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/me")
