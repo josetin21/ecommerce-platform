@@ -125,6 +125,7 @@ public class OrderService {
         if (order.getStatus() == OrderStatus.PENDING){
             order.setStatus(OrderStatus.CANCELLED);
             orderRepository.save(order);
+            productServiceClient.releaseStock(toStockAdjustmentRequest(order.getItems()));
             log.info("Order cancelled directly (was PENDING, no payment to refund): {}", orderId);
         } else {
           publishOrderCancelledEvent(order);

@@ -60,6 +60,7 @@ public class ProductServiceClient {
                     PRODUCT_SERVICE_URL + "/api/products/internal/release-stock",
                     new HttpEntity<>(request, serviceAuthHeaders()),
                     Void.class);
+            log.info("Stock release request sent for {} item(s)", request.getItems().size());
         } catch (RestClientException e){
             log.error("Stock release failed: {}", e.getMessage());
         }
