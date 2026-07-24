@@ -1,7 +1,9 @@
 package com.ecommerce.cartorderservice.exception;
 
-public class InvalidOrderStateException extends RuntimeException{
+import org.springframework.http.HttpStatus;
+
+public class InvalidOrderStateException extends BaseException{
     public InvalidOrderStateException(String message){
-        super(message);
+        super(message, HttpStatus.CONFLICT);
     }
 }

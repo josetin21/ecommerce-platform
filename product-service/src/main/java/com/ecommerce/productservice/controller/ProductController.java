@@ -1,6 +1,7 @@
 package com.ecommerce.productservice.controller;
 
 import com.ecommerce.productservice.dto.request.CreateProductRequest;
+import com.ecommerce.productservice.dto.request.StockAdjustmentRequest;
 import com.ecommerce.productservice.dto.request.UpdateProductRequest;
 import com.ecommerce.productservice.dto.response.PageResponse;
 import com.ecommerce.productservice.dto.response.ProductResponse;
@@ -87,5 +88,21 @@ public class ProductController {
     public ResponseEntity<Void> deleteProducts(@PathVariable UUID id){
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/internal/reserve-stock")
+    @PreAuthorize("hasRole('SERVICE')")
+    @Operation(summary = "Reserve stock for order items (internal service to service only)")
+    public ResponseEntity<Void> reserveStock(@Valid @RequestBody StockAdjustmentRequest request){
+        productService.reserveStock(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/internal/release-stock")
+    @PreAuthorize("hasRole('SERVICE')")
+    @Operation(summary = "Release previously reserved stock (internal service to service)")
+    public ResponseEntity<Void> releaseStock(@Valid @RequestBody StockAdjustmentRequest request){
+        productService.releaseStock(request);
+        return ResponseEntity.ok().build();
     }
 }

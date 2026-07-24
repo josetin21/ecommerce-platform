@@ -42,7 +42,7 @@ public class Product {
 
     @Builder.Default
     @Column(name = "is_active", nullable = false)
-    private boolean isActive = true;
+    private boolean active = true;
 
     @OneToMany(mappedBy = "product",
                 cascade = CascadeType.ALL,

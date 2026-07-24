@@ -1,5 +1,6 @@
 package com.ecommerce.productservice.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +21,7 @@ public class ProductResponse {
     private String description;
     private BigDecimal price;
     private Integer stockQuantity;
-    private boolean isActive;
+    private boolean active;
     private CategoryResponse category;
     private List<ProductImageResponse> images;
     private LocalDateTime createdAt;

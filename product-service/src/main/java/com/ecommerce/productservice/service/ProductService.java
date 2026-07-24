@@ -1,12 +1,15 @@
 package com.ecommerce.productservice.service;
 
 import com.ecommerce.productservice.dto.request.CreateProductRequest;
+import com.ecommerce.productservice.dto.request.StockAdjustmentItem;
+import com.ecommerce.productservice.dto.request.StockAdjustmentRequest;
 import com.ecommerce.productservice.dto.request.UpdateProductRequest;
 import com.ecommerce.productservice.dto.response.PageResponse;
 import com.ecommerce.productservice.dto.response.ProductResponse;
 import com.ecommerce.productservice.entity.Category;
 import com.ecommerce.productservice.entity.Product;
 import com.ecommerce.productservice.exception.CategoryNotFoundException;
+import com.ecommerce.productservice.exception.InsufficientStockException;
 import com.ecommerce.productservice.exception.ProductNotFoundException;
 import com.ecommerce.productservice.mapper.ProductMapper;
 import com.ecommerce.productservice.repository.CategoryRepository;
@@ -33,14 +36,14 @@ public class ProductService {
 
     public PageResponse<ProductResponse> getAllProducts(int page, int size, String sortBy){
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
-        Page<Product> products = productRepository.findByIsActiveTrue(pageable);
+        Page<Product> products = productRepository.findByActiveTrue(pageable);
 
         return toPageResponse(products);
     }
 
     public PageResponse<ProductResponse> getProductsByCategory(UUID categoryId, int page, int size){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Product> products = productRepository.findByCategoryIdAndIsActiveTrue(categoryId, pageable);
+        Page<Product> products = productRepository.findByCategoryIdAndActiveTrue(categoryId, pageable);
 
         return toPageResponse(products);
     }
@@ -70,7 +73,7 @@ public class ProductService {
                 .price(request.getPrice())
                 .stockQuantity(request.getStockQuantity())
                 .category(category)
-                .isActive(true)
+                .active(true)
                 .build();
 
         Product saved = productRepository.save(product);
@@ -87,7 +90,7 @@ public class ProductService {
         if (request.getDescription() != null) product.setDescription(request.getDescription());
         if (request.getPrice() != null) product.setPrice(request.getPrice());
         if (request.getStockQuantity() != null) product.setStockQuantity(request.getStockQuantity());
-        if (request.getIsActive() != null) product.setActive(request.getIsActive());
+        if (request.getActive() != null) product.setActive(request.getActive());
         if (request.getCategoryId() != null){
             Category category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new CategoryNotFoundException(request.getCategoryId().toString()));
@@ -106,6 +109,25 @@ public class ProductService {
         productRepository.save(product);
 
         log.info("Product deleted: {}", id);
+    }
+
+    @Transactional
+    public void reserveStock(StockAdjustmentRequest request){
+        for (StockAdjustmentItem item : request.getItems()){
+            int updated = productRepository.decrementStock(item.getProductId(), item.getQuantity());
+            if (updated == 0){
+                throw new InsufficientStockException("Insufficient stock for product: " + item.getProductId());
+            }
+        }
+        log.info("Stock reserved for {} item(s)", request.getItems().size());
+    }
+
+    @Transactional
+    public void releaseStock(StockAdjustmentRequest request){
+        for (StockAdjustmentItem item : request.getItems()){
+            productRepository.incrementStock(item.getProductId(), item.getQuantity());
+        }
+        log.info("Stock released for {} item(s)", request.getItems().size());
     }
 
     private PageResponse<ProductResponse> toPageResponse(Page<Product> page){
