@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -16,4 +17,5 @@ public class RefundFailedEvent {
     private UUID paymentId;
     private String reason;
     private String userEmail;
+    private BigDecimal amount;
 }

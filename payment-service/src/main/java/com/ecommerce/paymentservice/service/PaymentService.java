@@ -139,6 +139,7 @@ public class PaymentService {
                             .orderId(payment.getOrderId())
                             .paymentId(payment.getId())
                             .userEmail(payment.getUserEmail())
+                            .amount(payment.getAmount())
                             .reason(e.getMessage())
                             .build());
         }

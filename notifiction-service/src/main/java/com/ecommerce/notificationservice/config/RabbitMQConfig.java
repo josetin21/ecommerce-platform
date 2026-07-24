@@ -18,7 +18,7 @@ public class RabbitMQConfig {
     public static final String PAYMENT_FAILED_QUEUE = "notification.payment.failed.queue";
     public static final String PAYMENT_FAILED_ROUTING_KEY = "payment.failed";
 
-    public static final String REFUND_PROCESSED_QUEUE = "notification.refund.process";
+    public static final String REFUND_PROCESSED_QUEUE = "notification.refund.processed.queue";
     public static final String REFUND_PROCESSED_ROUTING_KEY = "refund.processed";
     public static final String REFUND_FAILED_QUEUE = "notification.refund.failed.queue";
     public static final String REFUND_FAILED_ROUTING_KEY = "refund.failed";
