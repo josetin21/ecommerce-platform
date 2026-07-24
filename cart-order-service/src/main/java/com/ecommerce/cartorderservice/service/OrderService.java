@@ -174,6 +174,7 @@ public class OrderService {
         }
         order.setStatus(OrderStatus.REFUNDED);
         orderRepository.save(order);
+        productServiceClient.releaseStock(toStockAdjustmentRequest(order.getItems()));
         log.info("Order status updated to REFUNDED for orderId={}", event.getOrderId());
     }
 
