@@ -33,12 +33,6 @@ public class JwtService {
         return buildToken(claims, email, jwtProperties.getAccessTokenExpiry());
     }
 
-    public String generateRefreshToken(String email){
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("type", "refresh");
-        return buildToken(claims, email, jwtProperties.getRefreshTokenExpiry());
-    }
-
     public String extractEmail(String token){
         return extractClaim(token, Claims::getSubject);
     }
