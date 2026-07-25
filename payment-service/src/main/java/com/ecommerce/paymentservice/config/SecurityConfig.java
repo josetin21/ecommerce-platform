@@ -30,6 +30,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html", "/v3/api-docs/**",
                                 "/swagger-ui/index.html",
                                 "/api/payments/webhook").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
